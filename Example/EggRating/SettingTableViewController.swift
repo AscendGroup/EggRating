@@ -36,7 +36,7 @@ class SettingTableViewController: UITableViewController {
         case .appVersion:
             self.title = "App version"
             self.textField.text = "\(EggRating.appVersion)"
-            self.textField.keyboardType = .decimalPad
+            self.textField.keyboardType = .DecimalPad
         case .daysUntilPrompt:
             self.title = "Day until prompt"
             self.textField.text = "\(EggRating.daysUntilPrompt)"
@@ -52,16 +52,16 @@ class SettingTableViewController: UITableViewController {
         case .minimumScore:
             self.title = "Minimum score"
             self.textField.text = "\(EggRating.minRatingToAppStore)"
-            self.textField.keyboardType = .decimalPad
+            self.textField.keyboardType = .DecimalPad
         }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         self.textField.becomeFirstResponder()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         
         guard let type = type, let value = textField.text else {
@@ -93,9 +93,9 @@ class SettingTableViewController: UITableViewController {
 
 extension SettingTableViewController: UITextFieldDelegate {
     
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    func textField(textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         
-        if let type = type, type == .minimumScore {
+        if let type = type where type == .minimumScore {
             if let value = textField.text {
                 if Double(value + string) ?? 0 > 5 {
                     return false

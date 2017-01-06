@@ -12,7 +12,7 @@ import RateView
 /// The protocol of the actions in EggRatingView.
 
 public protocol EggRatingDelegate {
-    func didRate(rating rate: Double)
+    func didRate(rating: Double)
     func didIgnoreToRate()
     func didRateOnAppStore()
     func didIgnoreToRateOnAppStore()
@@ -20,16 +20,16 @@ public protocol EggRatingDelegate {
 
 class EggRatingViewController: UIViewController {
     
-    fileprivate let delegate = EggRating.delegate
+    private let delegate = EggRating.delegate
     
-    fileprivate var rating: Double = 0.0 {
+    private var rating: Double = 0.0 {
         didSet {
-            self.rateButton.setTitleColor(rating > 0.0 ? defaultTintColor : UIColor.gray, for: .normal)
-            self.rateButton.isEnabled = rating > 0.0
+            self.rateButton.setTitleColor(rating > 0.0 ? defaultTintColor : UIColor.grayColor(), forState: .Normal)
+            self.rateButton.enabled = rating > 0.0
         }
     }
     
-    fileprivate let defaultTintColor = UIColor(red:0.0, green:122.0/255.0, blue:1.0, alpha:1.0)
+    private let defaultTintColor = UIColor(red:0.0, green:122.0/255.0, blue:1.0, alpha:1.0)
 
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var starContainerView: UIView!
@@ -52,11 +52,11 @@ class EggRatingViewController: UIViewController {
         titleLabel.text = EggRating.titleLabelText
         descriptionLabel.text = EggRating.descriptionLabelText
         
-        cancelButton.setTitle(EggRating.dismissButtonTitleText, for: .normal)
-        cancelButton.setTitleColor(defaultTintColor, for: .normal)
+        cancelButton.setTitle(EggRating.dismissButtonTitleText, forState: .Normal)
+        cancelButton.setTitleColor(defaultTintColor, forState: .Normal)
         
-        rateButton.setTitle(EggRating.rateButtonTitleText, for: .normal)
-        rateButton.setTitleColor(defaultTintColor, for: .normal)
+        rateButton.setTitle(EggRating.rateButtonTitleText, forState: .Normal)
+        rateButton.setTitleColor(defaultTintColor, forState: .Normal)
     }
     
     func setupStarRateView() {
@@ -74,7 +74,7 @@ class EggRatingViewController: UIViewController {
         starRateView.starNormalColor = EggRating.starNormalColor
         starRateView.step = 0.5
         starRateView.starSize = starContainerViewFrame.width/5.5
-        starRateView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        starRateView.autoresizingMask = [.FlexibleHeight, .FlexibleWidth]
         
         let frame = CGRect(x: (starContainerViewFrame.width - starRateView.frame.width)/2, y: starContainerViewFrame.height/2 - starRateView.frame.height/2, width: starContainerViewFrame.width, height: starContainerViewFrame.height)
         
@@ -89,11 +89,11 @@ class EggRatingViewController: UIViewController {
     
     func sendUserToAppStore() {
         
-        guard let url = NSURL(string: "itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=\(EggRating.itunesId)&onlyLatestVersion=true&pageNumber=0&sortOrdering=1&type=Purple+Software") as? URL else {
+        guard let url = NSURL(string: "itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=\(EggRating.itunesId)&onlyLatestVersion=true&pageNumber=0&sortOrdering=1&type=Purple+Software") else {
            return
         }
         
-        UIApplication.shared.openURL(url)
+        UIApplication.sharedApplication().openURL(url)
         
         delegate?.didRateOnAppStore()
     }
@@ -101,15 +101,15 @@ class EggRatingViewController: UIViewController {
     // MARK: - Action
 
     @IBAction func cancelButtonTouched(_ sender: UIButton) {
-        self.view.backgroundColor = UIColor.clear
-        self.containerView.isHidden = true
+        self.view.backgroundColor = UIColor.clearColor()
+        self.containerView.hidden = true
         self.delegate?.didIgnoreToRate()
-        self.dismiss(animated: false, completion: nil)
+        self.dismissViewControllerAnimated(false, completion: nil)
     }
     
     @IBAction func rateButtonTouched(_ sender: UIButton) {
-        self.view.backgroundColor = UIColor.clear
-        self.containerView.isHidden = true
+        self.view.backgroundColor = UIColor.clearColor()
+        self.containerView.hidden = true
         
         let minRatingToAppStore = EggRating.minRatingToAppStore > 5 ? 5 : EggRating.minRatingToAppStore
         
@@ -117,43 +117,43 @@ class EggRatingViewController: UIViewController {
             showRateInAppStoreAlertController()
             
             // only save last rated version if user rates more than mininum score
-            UserDefaults.standard.set(EggRating.appVersion, forKey: EggRatingUserDefaultsKey.lastVersionRatedKey.rawValue)
+            NSUserDefaults.standardUserDefaults().setObject(EggRating.appVersion, forKey: EggRatingUserDefaultsKey.lastVersionRatedKey.rawValue)
             
         } else {
             showDisadvantageAlertController()
         }
         
-        delegate?.didRate(rating: rating)
+        delegate?.didRate(rating)
     }
     
     // MARK: Alert
     
     func showDisadvantageAlertController() {
         
-        let disadvantageAlertController = UIAlertController(title: EggRating.thankyouTitleLabelText, message: EggRating.thankyouDescriptionLabelText, preferredStyle: .alert)
+        let disadvantageAlertController = UIAlertController(title: EggRating.thankyouTitleLabelText, message: EggRating.thankyouDescriptionLabelText, preferredStyle: .Alert)
         
-        disadvantageAlertController.addAction(UIAlertAction(title: EggRating.thankyouDismissButtonTitleText, style: .default, handler: { (_) in
-            self.dismiss(animated: false, completion: nil)
+        disadvantageAlertController.addAction(UIAlertAction(title: EggRating.thankyouDismissButtonTitleText, style: .Default, handler: { (_) in
+            self.dismissViewControllerAnimated(false, completion: nil)
         }))
         
-        self.present(disadvantageAlertController, animated: true, completion: nil)
+        self.presentViewController(disadvantageAlertController, animated: true, completion: nil)
     }
     
     func showRateInAppStoreAlertController() {
         
-        let rateInAppStoreAlertController = UIAlertController(title: EggRating.appStoreTitleLabelText, message: EggRating.appStoreDescriptionLabelText, preferredStyle: .alert)
+        let rateInAppStoreAlertController = UIAlertController(title: EggRating.appStoreTitleLabelText, message: EggRating.appStoreDescriptionLabelText, preferredStyle: .Alert)
         
-        rateInAppStoreAlertController.addAction(UIAlertAction(title: EggRating.appStoreDismissButtonTitleText, style: .default, handler: { (_) in
-            self.dismiss(animated: false, completion: nil)
+        rateInAppStoreAlertController.addAction(UIAlertAction(title: EggRating.appStoreDismissButtonTitleText, style: .Default, handler: { (_) in
+            self.dismissViewControllerAnimated(false, completion: nil)
             self.delegate?.didIgnoreToRateOnAppStore()
         }))
         
-        rateInAppStoreAlertController.addAction(UIAlertAction(title: EggRating.appStoreRateButtonTitleText, style: .default, handler: { (_) in
+        rateInAppStoreAlertController.addAction(UIAlertAction(title: EggRating.appStoreRateButtonTitleText, style: .Default, handler: { (_) in
             self.sendUserToAppStore()
-            self.dismiss(animated: false, completion: nil)
+            self.dismissViewControllerAnimated(false, completion: nil)
         }))
         
-        self.present(rateInAppStoreAlertController, animated: true, completion: nil)
+        self.presentViewController(rateInAppStoreAlertController, animated: true, completion: nil)
     }
     
 }

@@ -26,7 +26,8 @@ public class EggRating: NSObject {
     public static var delegate: EggRatingDelegate?
     
     /// The current application version.
-    public static let currentAppVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+    
+    public static let currentAppVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
     
     // MARK: - Debugging Properties
     
@@ -49,7 +50,7 @@ public class EggRating: NSObject {
         }
     }
     
-    fileprivate static var _minuteUntilPrompt = 0
+    private static var _minuteUntilPrompt = 0
     
     /// The condition to remind the user to rate the application again. You can set and get the value you want only when debug mode is on. If debug mode is off, this will return the remindPeriod in minutes.
     
@@ -61,7 +62,7 @@ public class EggRating: NSObject {
         }
     }
     
-    fileprivate static var _minuteRemindPeriod = 0
+    private static var _minuteRemindPeriod = 0
     
     /// The application version property, You can set and get the value you want only when debug mode is on. If debug mode is off, this will return the current version of the application which is in the bundle directory.
     
@@ -73,7 +74,7 @@ public class EggRating: NSObject {
         }
     }
     
-    fileprivate static var _appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+    private static var _appVersion = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
     
     // MARK: - Star Properties
     
@@ -81,7 +82,7 @@ public class EggRating: NSObject {
     public static var starFillColor = UIColor(red: 255/255, green: 181/255, blue: 17/255, alpha: 1)
     
     /// The color of normal stars, default is clear.
-    public static var starNormalColor = UIColor.clear
+    public static var starNormalColor = UIColor.clearColor()
     
     /// The color of star border, default is yellow.
     public static var starBorderColor = UIColor(red: 255/255, green: 181/255, blue: 17/255, alpha: 1)
@@ -126,15 +127,15 @@ public class EggRating: NSObject {
     /// The condition to show EggRatingView included: minutesFromFirstUsed, applicationVersion, minutesFromLastRemind.
     public static var shouldPromptForRating: Bool {
         
-        let minutesFromFirstUsed = Calendar.current.dateComponents([.minute], from: firstUsed, to: Date()).minute ?? 0
-        let minutesFromLastRemind = Calendar.current.dateComponents([.minute], from: lastRemind, to: Date()).minute ?? 0
+        let minutesFromFirstUsed = NSCalendar.currentCalendar().component([.Minute], fromDate: firstUsed)
+        let minutesFromLastRemind = NSCalendar.currentCalendar().component([.Minute], fromDate: lastRemind)
         
         if minutesFromFirstUsed < minuteUntilPrompt {
             print("[EggRating] 🕑 User has just used the app for only \(minutesFromLastRemind) \(minutesFromLastRemind <= 1 ? "minute" : "minutes"). EggRating will be prompted in the next \(minuteUntilPrompt - minutesFromLastRemind) \(minuteUntilPrompt - minutesFromLastRemind <= 1 ? "minute" : "minutes").")
             return false
         }
         
-        if versionToInt(string: appVersion).lexicographicallyPrecedes(versionToInt(string: lastVersionRated)) {
+        if versionToInt(string: appVersion).lexicographicalCompare(versionToInt(string: lastVersionRated)) {
             return true
         } else if appVersion == lastVersionRated {
             print("[EggRating] 🙂 User has already rated this version.")
@@ -154,10 +155,10 @@ public class EggRating: NSObject {
      - parameter viewController: The view controller to show RateUsView
      */
 
-    public static func promptRateUsIfNeeded(viewController: UIViewController) {
+    public static func promptRateUsIfNeeded(viewController viewController: UIViewController) {
         if shouldPromptForRating {
             self.promptRateUs(viewController: viewController)
-            lastRemind = Date()
+            lastRemind = NSDate()
         }
     }
     
@@ -166,7 +167,7 @@ public class EggRating: NSObject {
      - parameter viewController: The view controller to show RateUsView
      */
     
-    public static func promptRateUs(viewController: UIViewController) {
+    public static func promptRateUs(viewController viewController: UIViewController) {
         
         if itunesId == "" {
             print("[EggRating] ‼️ itunesId is required.")
@@ -179,19 +180,19 @@ public class EggRating: NSObject {
         }
         
         if #available(iOS 8.0, *) {
-            rateViewController.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
+            rateViewController.modalPresentationStyle = UIModalPresentationStyle.OverCurrentContext
             rateViewController.providesPresentationContextTransitionStyle = true
             rateViewController.definesPresentationContext = true
         } else {
-            rateViewController.modalPresentationStyle = UIModalPresentationStyle.currentContext
+            rateViewController.modalPresentationStyle = UIModalPresentationStyle.CurrentContext
         }
         
         if let navigationController = viewController.navigationController {
-            navigationController.present(rateViewController, animated: false, completion: nil)
+            navigationController.presentViewController(rateViewController, animated: false, completion: nil)
         } else if let tabbarController = viewController.tabBarController {
-            tabbarController.present(rateViewController, animated: false, completion: nil)
+            tabbarController.presentViewController(rateViewController, animated: false, completion: nil)
         } else {
-            viewController.present(rateViewController, animated: false, completion: nil)
+            viewController.presentViewController(rateViewController, animated: false, completion: nil)
         }
     }
     
@@ -200,13 +201,14 @@ public class EggRating: NSObject {
     // MARK: View
     
     private static var rateViewFromNib: UIViewController? {
-        let podBundle = Bundle(for: EggRating.self)
+        let podBundle = NSBundle(forClass: EggRating.self)
         
-        if let bundleURL = podBundle.url(forResource: "EggRating", withExtension: "bundle"), let bundle = Bundle(url: bundleURL) {
+        if let bundleURL = podBundle.URLForResource("EggRating", withExtension: "bundle"),
+            let bundle = NSBundle(URL: bundleURL) {
             
             let nib = UINib(nibName: "EggRatingViewController", bundle: bundle)
             
-            if let rateViewController = nib.instantiate(withOwner: self, options: nil)[0] as? EggRatingViewController {
+            if let rateViewController = nib.instantiateWithOwner(self, options: nil)[0] as? EggRatingViewController {
                 return rateViewController
             }
             
@@ -218,23 +220,23 @@ public class EggRating: NSObject {
     }
     
     // MARK: Version
-    fileprivate static func versionToInt(string: String) -> [Int] {
-        return string.components(separatedBy: ".").map { Int.init($0) ?? 0 }
+    private static func versionToInt(string string: String) -> [Int] {
+        return string.componentsSeparatedByString(".").map { Int.init($0) ?? 0 }
     }
     
     // MARK: Cache
     
-    fileprivate static let userDefaults = UserDefaults.standard
+    private static let userDefaults = NSUserDefaults.standardUserDefaults()
     
     /// The day user starts using the application.
     
-    public static private(set) var firstUsed: Date {
+    public static private(set) var firstUsed: NSDate {
         set (date) {
-            userDefaults.set(date, forKey: EggRatingUserDefaultsKey.firstUsedKey.rawValue)
+            userDefaults.setObject(date, forKey: EggRatingUserDefaultsKey.firstUsedKey.rawValue)
         } get {
-            guard let firstUsedDate = userDefaults.object(forKey: EggRatingUserDefaultsKey.firstUsedKey.rawValue) as? Date else {
-                let today = Date()
-                userDefaults.set(today, forKey: EggRatingUserDefaultsKey.firstUsedKey.rawValue)
+            guard let firstUsedDate = userDefaults.objectForKey(EggRatingUserDefaultsKey.firstUsedKey.rawValue) as? NSDate else {
+                let today = NSDate()
+                userDefaults.setObject(today, forKey: EggRatingUserDefaultsKey.firstUsedKey.rawValue)
                 return today
             }
             
@@ -244,14 +246,14 @@ public class EggRating: NSObject {
     
     /// The last day EggRatingView is reminded.
     
-    public static private(set) var lastRemind: Date {
+    public static private(set) var lastRemind: NSDate {
         set(date) {
-            userDefaults.set(date, forKey: EggRatingUserDefaultsKey.lastRemindKey.rawValue)
+            userDefaults.setObject(date, forKey: EggRatingUserDefaultsKey.lastRemindKey.rawValue)
         } get {
             
-            guard let lastOpenDate = userDefaults.object(forKey: EggRatingUserDefaultsKey.lastRemindKey.rawValue) as? Date else {
-                let today = Date()
-                userDefaults.set(today, forKey: EggRatingUserDefaultsKey.lastRemindKey.rawValue)
+            guard let lastOpenDate = userDefaults.objectForKey(EggRatingUserDefaultsKey.lastRemindKey.rawValue) as? NSDate else {
+                let today = NSDate()
+                userDefaults.setObject(today, forKey: EggRatingUserDefaultsKey.lastRemindKey.rawValue)
                 return today
             }
             
@@ -263,9 +265,9 @@ public class EggRating: NSObject {
     
     public static private(set) var lastVersionRated: String {
         set(version) {
-            userDefaults.set(version, forKey: EggRatingUserDefaultsKey.lastVersionRatedKey.rawValue)
+            userDefaults.setObject(version, forKey: EggRatingUserDefaultsKey.lastVersionRatedKey.rawValue)
         } get {
-            return userDefaults.string(forKey: EggRatingUserDefaultsKey.lastVersionRatedKey.rawValue) ?? "0.0.0"
+            return userDefaults.stringForKey(EggRatingUserDefaultsKey.lastVersionRatedKey.rawValue) ?? "0.0.0"
         }
     }
 }

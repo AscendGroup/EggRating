@@ -29,7 +29,7 @@ class EggRatingTableViewController: UITableViewController {
         EggRating.promptRateUsIfNeeded(viewController: self)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         setupView()
     }
@@ -40,7 +40,7 @@ class EggRatingTableViewController: UITableViewController {
     }
     
     func setupView() {
-        debugModeSwitch.isOn = EggRating.debugMode
+        debugModeSwitch.on = EggRating.debugMode
         minuteUntilPromptLabel.text = "\(EggRating.minuteUntilPrompt)"
         dayUntilPromptLabel.text = "\(EggRating.daysUntilPrompt)"
         minuteRemindPeriodLabel.text = "\(EggRating.minuteRemindPeriod)"
@@ -53,33 +53,29 @@ class EggRatingTableViewController: UITableViewController {
         firstDateUsingAppLabel.text = "\(EggRating.firstUsed)"
         latestRemindDateLabel.text = "\(EggRating.lastRemind)"
         
-        dayUntilPromptLabel.textColor = !EggRating.debugMode ? UIColor.black : UIColor.gray
-        dayRemindPeriodLabel.textColor = !EggRating.debugMode ? UIColor.black : UIColor.gray
-        minuteRemindPeriodLabel.textColor = EggRating.debugMode ? UIColor.black : UIColor.gray
-        minuteUntilPromptLabel.textColor = EggRating.debugMode ? UIColor.black :UIColor.gray
-        appVersionLabel.textColor = EggRating.debugMode ? UIColor.black : UIColor.gray
+        dayUntilPromptLabel.textColor = !EggRating.debugMode ? UIColor.blackColor() : UIColor.grayColor()
+        dayRemindPeriodLabel.textColor = !EggRating.debugMode ? UIColor.blackColor() : UIColor.grayColor()
+        minuteRemindPeriodLabel.textColor = EggRating.debugMode ? UIColor.blackColor() : UIColor.grayColor()
+        minuteUntilPromptLabel.textColor = EggRating.debugMode ? UIColor.blackColor() :UIColor.grayColor()
+        appVersionLabel.textColor = EggRating.debugMode ? UIColor.blackColor() : UIColor.grayColor()
     }
     
     // MARK: - Action
     
-    @IBAction func rateNowButtonTouched(_ sender: UIButton) {
+    @IBAction func rateNowButtonTouched(sender: UIButton) {
         EggRating.promptRateUs(viewController: self)
     }
     
-    @IBAction func rateWithConditionButtonTouched(_ sender: UIButton) {
+    @IBAction func rateWithConditionButtonTouched(sender: UIButton) {
         EggRating.promptRateUsIfNeeded(viewController: self)
     }
     
-    @IBAction func debugModeValueChanged(_ sender: UISwitch) {
-        EggRating.debugMode = sender.isOn
+    @IBAction func debugModeValueChanged(sender: UISwitch) {
+        EggRating.debugMode = sender.on
         setupView()
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-    }
-    
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if indexPath.section == 1 {
             switch indexPath.row {
             case 1:
@@ -110,10 +106,10 @@ class EggRatingTableViewController: UITableViewController {
         }
     }
     
-    func pushToEditVC(identifier: SettingType) {
+    func pushToEditVC(identifier identifier: SettingType) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
-        guard let vc = storyboard.instantiateViewController(withIdentifier: "SettingTableViewController") as? SettingTableViewController else {
+        guard let vc = storyboard.instantiateViewControllerWithIdentifier("SettingTableViewController") as? SettingTableViewController else {
             return
         }
         vc.type = identifier
