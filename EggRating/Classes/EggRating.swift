@@ -187,10 +187,10 @@ public class EggRating: NSObject {
             rateViewController.modalPresentationStyle = UIModalPresentationStyle.CurrentContext
         }
         
-        if let navigationController = viewController.navigationController {
-            navigationController.presentViewController(rateViewController, animated: false, completion: nil)
-        } else if let tabbarController = viewController.tabBarController {
+        if let tabbarController = viewController.tabBarController {
             tabbarController.presentViewController(rateViewController, animated: false, completion: nil)
+        } else if let navigationController = viewController.navigationController {
+            navigationController.presentViewController(rateViewController, animated: false, completion: nil)
         } else {
             viewController.presentViewController(rateViewController, animated: false, completion: nil)
         }
